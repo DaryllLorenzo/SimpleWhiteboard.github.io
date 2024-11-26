@@ -3,143 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Whiteboard</title>
+  <title>Whiteboard Básico</title>
   <style>
-    * {
+    html, body {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-    html, body {
-      width: 100%;
-      height: 100%;
       overflow: hidden;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-      background-color: #f0f0f0;
-    }
-    .toolbar {
-      display: flex;
-      justify-content: center;
-      padding: 10px;
-      background-color: #fff;
-      border-bottom: 1px solid #ccc;
+      height: 100%;
     }
     canvas {
-      flex: 1;
+      display: block;
       background-color: white;
-      touch-action: none; /* Deshabilita gestos táctiles */
-      -webkit-touch-callout: none; /* Evita menú contextual */
-      -webkit-user-select: none; /* Deshabilita selección */
-    }
-    button {
-      margin: 0 5px;
-      padding: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:active {
-      background-color: #ddd;
+      position: fixed;
+      top: 0;
+      left: 0;
     }
   </style>
 </head>
 <body>
-  <div class="toolbar">
-    <button id="pencil">Lápiz</button>
-    <button id="eraser">Goma</button>
-    <button id="clear">Limpiar</button>
-  </div>
   <canvas id="whiteboard"></canvas>
 
   <script>
-    const canvas = document.getElementById('whiteboard');
-    const ctx = canvas.getContext('2d');
-    const pencilBtn = document.getElementById('pencil');
-    const eraserBtn = document.getElementById('eraser');
-    const clearBtn = document.getElementById('clear');
+    // Configuración básica del canvas
+    var canvas = document.getElementById('whiteboard');
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    // Ajustar el tamaño del canvas
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight - document.querySelector('.toolbar').offsetHeight;
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
+    // Estilo básico del lápiz
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.strokeStyle = 'black';
 
-    let isDrawing = false;
+    // Variables para el dibujo
+    var drawing = false;
 
-    // Detección de posición táctil o de mouse
-    function getPos(e) {
-      const rect = canvas.getBoundingClientRect();
-      if (e.touches) {
-        return {
-          x: e.touches[0].clientX - rect.left,
-          y: e.touches[0].clientY - rect.top
-        };
-      }
-      return { x: e.offsetX, y: e.offsetY };
-    }
-
-    function startDrawing(e) {
-      e.preventDefault();
-      const pos = getPos(e);
-      isDrawing = true;
+    // Funciones básicas
+    function startDraw(e) {
+      drawing = true;
       ctx.beginPath();
+      var pos = getPosition(e);
       ctx.moveTo(pos.x, pos.y);
     }
 
     function draw(e) {
-      if (!isDrawing) return;
-      e.preventDefault();
-      const pos = getPos(e);
+      if (!drawing) return;
+      var pos = getPosition(e);
       ctx.lineTo(pos.x, pos.y);
       ctx.stroke();
     }
 
-    function stopDrawing(e) {
-      e.preventDefault();
-      if (isDrawing) {
-        ctx.closePath();
-        isDrawing = false;
+    function stopDraw() {
+      drawing = false;
+    }
+
+    // Obtener posición (tanto para mouse como para touch)
+    function getPosition(e) {
+      if (e.touches && e.touches.length > 0) {
+        var touch = e.touches[0];
+        return { x: touch.clientX, y: touch.clientY };
+      } else {
+        return { x: e.clientX, y: e.clientY };
       }
     }
 
-    pencilBtn.addEventListener('click', () => {
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 2;
-    });
+    // Eventos de mouse y touch
+    canvas.onmousedown = startDraw;
+    canvas.onmousemove = draw;
+    canvas.onmouseup = stopDraw;
+    canvas.onmouseout = stopDraw;
 
-    eraserBtn.addEventListener('click', () => {
-      ctx.strokeStyle = 'white';
-      ctx.lineWidth = 10;
-    });
+    canvas.ontouchstart = function(e) {
+      e.preventDefault(); // Prevenir scroll
+      startDraw(e);
+    };
+    canvas.ontouchmove = function(e) {
+      e.preventDefault(); // Prevenir scroll
+      draw(e);
+    };
+    canvas.ontouchend = stopDraw;
 
-    clearBtn.addEventListener('click', () => {
+    // Redimensionar canvas al cambiar tamaño de ventana
+    window.onresize = function() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-    });
-
-    // Eventos de mouse
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDrawing);
-
-    // Eventos táctiles con fallback para dispositivos antiguos
-    canvas.addEventListener('touchstart', startDrawing, { passive: false });
-    canvas.addEventListener('touchmove', draw, { passive: false });
-    canvas.addEventListener('touchend', stopDrawing, { passive: false });
-
-    // Prevenir gestos táctiles globales en Safari antiguo
-    document.body.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
-    document.body.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+    };
   </script>
 </body>
 </html>
