@@ -2,9 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Whiteboard</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* Evita scroll */
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      background-color: #f0f0f0;
+      touch-action: none; /* Desactiva gestos táctiles del navegador */
+    }
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      padding: 10px;
+      background-color: #fff;
+      border-bottom: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+    canvas {
+      flex: 1;
+      background-color: white;
+      touch-action: none;
+    }
+    button {
+      margin: 0 5px;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:active {
+      background-color: #ddd;
+    }
+  </style>
 </head>
 <body>
   <div class="toolbar">
@@ -14,6 +53,99 @@
   </div>
   <canvas id="whiteboard"></canvas>
 
-  <script src="script.js"></script>
+  <script>
+    const canvas = document.getElementById('whiteboard');
+    const ctx = canvas.getContext('2d');
+    const pencilBtn = document.getElementById('pencil');
+    const eraserBtn = document.getElementById('eraser');
+    const clearBtn = document.getElementById('clear');
+
+    // Ajustar el tamaño del canvas
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight - document.querySelector('.toolbar').offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Fondo blanco inicial
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'black';
+
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function getPosition(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches) {
+        return {
+          x: e.touches[0].clientX - rect.left,
+          y: e.touches[0].clientY - rect.top
+        };
+      } else {
+        return {
+          x: e.offsetX,
+          y: e.offsetY
+        };
+      }
+    }
+
+    function startDrawing(e) {
+      e.preventDefault();
+      const pos = getPosition(e);
+      isDrawing = true;
+      [lastX, lastY] = [pos.x, pos.y];
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const pos = getPosition(e);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      [lastX, lastY] = [pos.x, pos.y];
+    }
+
+    function stopDrawing(e) {
+      e.preventDefault();
+      isDrawing = false;
+      ctx.beginPath();
+    }
+
+    pencilBtn.addEventListener('click', () => {
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+    });
+
+    eraserBtn.addEventListener('click', () => {
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 10;
+    });
+
+    clearBtn.addEventListener('click', () => {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    });
+
+    // Eventos de mouse
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+
+    // Eventos táctiles
+    canvas.addEventListener('touchstart', startDrawing, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDrawing, { passive: false });
+
+    // Evitar el scroll y zoom con gestos táctiles
+    document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+  </script>
 </body>
 </html>
