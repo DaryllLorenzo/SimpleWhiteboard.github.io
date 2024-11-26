@@ -18,9 +18,30 @@
       top: 0;
       left: 0;
     }
+    .toolbar {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+    }
+    button:active {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
+  <div class="toolbar">
+    <button onclick="clearCanvas()">Limpiar</button>
+  </div>
   <canvas id="whiteboard"></canvas>
 
   <script>
@@ -85,11 +106,24 @@
 
     // Redimensionar canvas al cambiar tamaño de ventana
     window.onresize = function() {
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-    };
+    }
+
+    // Función para limpiar el canvas
+    function clearCanvas() {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Inicializar fondo blanco
+    resizeCanvas();
   </script>
 </body>
 </html>
