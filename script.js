@@ -1,6 +1,6 @@
     // Configuración básica del canvas
-    let canvas = document.getElementById('whiteboard');
-    let ctx = canvas.getContext('2d');
+    var canvas = document.getElementById('whiteboard');
+    var ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
