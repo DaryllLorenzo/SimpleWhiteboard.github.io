@@ -20,7 +20,7 @@ Bienvenido a la Simple Whiteboard! Esta aplicación está diseñada para funcion
 ## Capturas de Pantalla
 
 <img alt="IMG_1" src="/imgs/1.png"> 
-<img alt="IMG_2" src="/imgs/1.png">
+<img alt="IMG_2" src="/imgs/2.png">
 
 ## Conclusión
 
