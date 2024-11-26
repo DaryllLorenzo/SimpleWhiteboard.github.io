@@ -1,6 +1,6 @@
     // Configuración básica del canvas
-    var canvas = document.getElementById('whiteboard');
-    var ctx = canvas.getContext('2d');
+    let canvas = document.getElementById('whiteboard');
+    let ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -10,19 +10,19 @@
     ctx.strokeStyle = 'black';
 
     // Variables para el dibujo
-    var drawing = false;
+    let drawing = false;
 
     // Funciones básicas
     function startDraw(e) {
       drawing = true;
       ctx.beginPath();
-      var pos = getPosition(e);
+      let pos = getPosition(e);
       ctx.moveTo(pos.x, pos.y);
     }
 
     function draw(e) {
       if (!drawing) return;
-      var pos = getPosition(e);
+      let pos = getPosition(e);
       ctx.lineTo(pos.x, pos.y);
       ctx.stroke();
     }
@@ -34,7 +34,7 @@
     // Obtener posición (tanto para mouse como para touch)
     function getPosition(e) {
       if (e.touches && e.touches.length > 0) {
-        var touch = e.touches[0];
+        let touch = e.touches[0];
         return { x: touch.clientX, y: touch.clientY };
       } else {
         return { x: e.clientX, y: e.clientY };
