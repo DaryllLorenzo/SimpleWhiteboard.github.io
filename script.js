@@ -1,81 +1,79 @@
- const canvas = document.getElementById('whiteboard');
-    const ctx = canvas.getContext('2d');
-    const pencilBtn = document.getElementById('pencil');
-    const eraserBtn = document.getElementById('eraser');
-    const clearBtn = document.getElementById('clear');
-
-    // Configuración inicial
-    let isDrawing = false;
-    let lastX = 0;
-    let lastY = 0;
-
-    // Ajustar tamaño del canvas al inicio
+    // Configuración básica del canvas
+    var canvas = document.getElementById('whiteboard');
+    var ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 50;
+    canvas.height = window.innerHeight;
 
-    // Fondo inicial blanco
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    // Estilo básico del lápiz
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.strokeStyle = 'black';
 
-    function getTouchPos(e) {
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.changedTouches[0];
-      return {
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top
-      };
-    }
+    // Variables para el dibujo
+    var drawing = false;
 
-    function startDrawing(e) {
-      e.preventDefault();
-      isDrawing = true;
-      const pos = e.touches ? getTouchPos(e) : { x: e.offsetX, y: e.offsetY };
-      [lastX, lastY] = [pos.x, pos.y];
+    // Funciones básicas
+    function startDraw(e) {
+      drawing = true;
+      ctx.beginPath();
+      var pos = getPosition(e);
+      ctx.moveTo(pos.x, pos.y);
     }
 
     function draw(e) {
-      if (!isDrawing) return;
-      e.preventDefault();
-      const pos = e.touches ? getTouchPos(e) : { x: e.offsetX, y: e.offsetY };
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
+      if (!drawing) return;
+      var pos = getPosition(e);
       ctx.lineTo(pos.x, pos.y);
       ctx.stroke();
-      [lastX, lastY] = [pos.x, pos.y];
     }
 
-    function stopDrawing(e) {
-      e.preventDefault();
-      isDrawing = false;
-      ctx.beginPath();
+    function stopDraw() {
+      drawing = false;
     }
 
-    pencilBtn.addEventListener('click', () => {
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 2;
-    });
+    // Obtener posición (tanto para mouse como para touch)
+    function getPosition(e) {
+      if (e.touches && e.touches.length > 0) {
+        var touch = e.touches[0];
+        return { x: touch.clientX, y: touch.clientY };
+      } else {
+        return { x: e.clientX, y: e.clientY };
+      }
+    }
 
-    eraserBtn.addEventListener('click', () => {
-      ctx.strokeStyle = 'white';
-      ctx.lineWidth = 10;
-    });
+    // Eventos de mouse y touch
+    canvas.onmousedown = startDraw;
+    canvas.onmousemove = draw;
+    canvas.onmouseup = stopDraw;
+    canvas.onmouseout = stopDraw;
 
-    clearBtn.addEventListener('click', () => {
+    canvas.ontouchstart = function(e) {
+      e.preventDefault(); // Prevenir scroll
+      startDraw(e);
+    };
+    canvas.ontouchmove = function(e) {
+      e.preventDefault(); // Prevenir scroll
+      draw(e);
+    };
+    canvas.ontouchend = stopDraw;
+
+    // Redimensionar canvas al cambiar tamaño de ventana
+    window.onresize = function() {
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-    });
+    }
 
-    // Eventos de mouse
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDrawing);
-    canvas.addEventListener('mouseout', stopDrawing);
+    // Función para limpiar el canvas
+    function clearCanvas() {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
-    // Eventos táctiles
-    canvas.addEventListener('touchstart', startDrawing);
-    canvas.addEventListener('touchmove', draw);
-    canvas.addEventListener('touchend', stopDrawing);
+    // Inicializar fondo blanco
+    resizeCanvas();
