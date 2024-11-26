@@ -10,7 +10,7 @@
     ctx.strokeStyle = 'black';
 
     // Variables para el dibujo
-    let drawing = false;
+    var drawing = false;
 
     // Funciones básicas
     function startDraw(e) {
