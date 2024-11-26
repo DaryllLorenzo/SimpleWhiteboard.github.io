@@ -16,13 +16,13 @@
     function startDraw(e) {
       drawing = true;
       ctx.beginPath();
-      let pos = getPosition(e);
+      var pos = getPosition(e);
       ctx.moveTo(pos.x, pos.y);
     }
 
     function draw(e) {
       if (!drawing) return;
-      let pos = getPosition(e);
+      var pos = getPosition(e);
       ctx.lineTo(pos.x, pos.y);
       ctx.stroke();
     }
@@ -34,7 +34,7 @@
     // Obtener posición (tanto para mouse como para touch)
     function getPosition(e) {
       if (e.touches && e.touches.length > 0) {
-        let touch = e.touches[0];
+        var touch = e.touches[0];
         return { x: touch.clientX, y: touch.clientY };
       } else {
         return { x: e.clientX, y: e.clientY };
